@@ -126,6 +126,16 @@ def redeem_code(uid, code):
     if row["used"] == 1:
         return False, "⚠️ Code already used."
 
+    # Mark as used
+    cur.execute("UPDATE codes SET used=1 WHERE code=?", (code,))
+
+    # Add ad credits to the user who returned
+    cur.execute("UPDATE users SET credits = credits + ? WHERE user_id=?", (CREDITS_PER_AD, uid))
+
+    conn.commit()
+
+    return True, f"✅ +{CREDITS_PER_AD} credits added."
+
     cur.execute("UPDATE codes SET used=1 WHERE code=?", (code,))
     cur.execute("UPDATE users SET credits = credits + ? WHERE user_id=?", (CREDITS_PER_REF, refid))
     conn.commit()
